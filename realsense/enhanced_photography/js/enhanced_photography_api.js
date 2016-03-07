@@ -307,18 +307,11 @@ var PhotoCapture = function(previewStream, objectId) {
     throw 'no valid video track';
   var videoTrack = videoTracks[0];
   if (videoTrack.readyState == 'ended')
-    throw 'vdieo track is ended';
-
-  var videoElement = document.createElement('video');
-  videoElement.autoplay = true;
-  videoElement.srcObject = previewStream;
+    throw 'video track is ended';
 
   var that = this;
   videoTrack.onended = function() {
     that._postMessage('disableDepthStream', []);
-  };
-  videoElement.onplay = function() {
-    that._postMessage('enableDepthStream', [videoTrack.label]);
   };
 
   Object.defineProperties(this, {
@@ -355,6 +348,8 @@ var PhotoCapture = function(previewStream, objectId) {
   var result = internal.sendSyncMessage('photoCaptureConstructor', [this._id]);
   if (!result)
     throw new InitFailureException('Failed to construct PhotoCapture object. Missing dependency');
+  else
+    internal.postMessage('enableDepthStream', [videoTrack.label]);
 };
 
 PhotoCapture.prototype = new common.EventTargetPrototype();
